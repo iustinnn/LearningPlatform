@@ -1,0 +1,203 @@
+﻿@page "/teacher/profile/update"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@inject NavigationManager navigationManager
+@inject IAzureDataService BlobHttpClientService
+@inject ITeacherService TeacherProfileService
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <h2>Update Teacher Profile</h2>
+        </div>
+        @if (editTeacher != null)
+        {
+            <EditForm Model="editTeacher" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-group">
+                    <label for="firstName">First Name:</label>
+                    <InputText id="firstName" class="form-control" @bind-Value="editTeacher.FirstName" />
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name:</label>
+                    <InputText id="lastName" class="form-control" @bind-Value="editTeacher.LastName" />
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number:</label>
+                    <InputText id="phone" class="form-control" @bind-Value="editTeacher.PhoneNumber" />
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <InputTextArea id="description" class="form-control" @bind-Value="editTeacher.Description" />
+                </div>
+
+                <button type="submit" class="btn-submit">Update Profil</button>
+            </EditForm>
+            <div class="form-group file-upload-group">
+                <InputFile OnChange="HandleFileSelected" />
+            </div>
+            <button class="btn-upload" @onclick="UploadFile">Upload poză</button>
+            <button class="btn-back" @onclick="NavigateBack">Înapoi la profil</button>
+        }
+        else
+        {
+            <p>Loading...</p>
+        }
+    </div>
+</div>
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .profile-card {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        max-width: 350px;
+        width: 100%;
+    }
+
+    .profile-header {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+        .profile-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 24px;
+        }
+
+    .form-group {
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #1e3a8a;
+            font-size: 16px;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #1e3a8a;
+            outline: none;
+        }
+
+    .btn-submit, .btn-back, .btn-upload {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 20px;
+        background-color: #1e3a8a;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+        margin-top: 10px;
+    }
+
+        .btn-submit:hover, .btn-back:hover, .btn-upload:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-upload.success {
+            background-color: #28a745;
+        }
+
+    .form-group.file-upload-group {
+        margin-top: 20px;
+    }
+</style>
+
+@code {
+    private UpdateTeacherViewModel editTeacher = new UpdateTeacherViewModel();
+    private IBrowserFile selectedFile;
+    private TeacherViewModel oldTeacher;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchTeacherProfile();
+    }
+
+    private async Task FetchTeacherProfile()
+    {
+        oldTeacher = await TeacherProfileService.GetTeacherProfileAsync();
+        editTeacher.TeacherId = oldTeacher.TeacherId;
+        editTeacher.FirstName = oldTeacher.FirstName;
+        editTeacher.LastName = oldTeacher.LastName;
+        editTeacher.PhoneNumber = oldTeacher.PhoneNumber;
+        editTeacher.Description = oldTeacher.Description;
+        editTeacher.ProfilePictureUrl = oldTeacher.ProfilePictureUrl;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var result = await TeacherProfileService.UpdateTeacherAsync(editTeacher);
+        if (result.IsSuccess)
+        {
+            Console.WriteLine("Profile updated successfully.");
+            NavigateBack();
+        }
+        else
+        {
+            Console.WriteLine("Failed to update profile.");
+        }
+    }
+
+    private void NavigateBack()
+    {
+        navigationManager.NavigateTo("/teacher/profile");
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+    }
+
+    private async Task UploadFile()
+    {
+        if (selectedFile != null)
+        {
+            var result = await BlobHttpClientService.UploadFiles(new List<IBrowserFile> { selectedFile });
+            var fileUrl = result[0].Uri;
+            editTeacher.ProfilePictureUrl = fileUrl;
+
+            var updateResult = await TeacherProfileService.UpdateTeacherAsync(editTeacher);
+            if (updateResult.IsSuccess)
+            {
+                Console.WriteLine("Profile picture updated successfully.");
+                NavigateBack();
+            }
+            else
+            {
+                Console.WriteLine("Failed to update profile picture.");
+            }
+        }
+    }
+}

@@ -1,0 +1,173 @@
+﻿@page "/register/teacher"
+@using LearningPlatform.App.ViewModels
+@using Auth
+@inject NavigationManager navigationManager
+@inject CustomStateProvider authStateProvider
+@inject IJSRuntime JSRuntime
+
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <h2>Learning Platform</h2>
+            <h3>Teacher Registration</h3>
+        </div>
+        <div class="register-form">
+            <h1 class="register-title">Register</h1>
+            <EditForm OnValidSubmit="OnSubmit" Model="registerRequest">
+                <DataAnnotationsValidator />
+                <div class="form-group">
+                    <label for="inputFirstName">First Name</label>
+                    <InputText id="inputFirstName" class="form-control" @bind-Value="registerRequest.FirstName" placeholder="First Name" />
+                    <ValidationMessage For="@(() => registerRequest.FirstName)" />
+                </div>
+                <div class="form-group">
+                    <label for="inputLastName">Last Name</label>
+                    <InputText id="inputLastName" class="form-control" @bind-Value="registerRequest.LastName" placeholder="Last Name" />
+                    <ValidationMessage For="@(() => registerRequest.LastName)" />
+                </div>
+                <div class="form-group">
+                    <label for="inputEmail">Email</label>
+                    <InputText id="inputEmail" class="form-control" @bind-Value="registerRequest.Email" placeholder="Email" />
+                    <ValidationMessage For="@(() => registerRequest.Email)" />
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword">Password</label>
+                    <InputText type="password" id="inputPassword" class="form-control" @bind-Value="registerRequest.Password" placeholder="Password" />
+                    <ValidationMessage For="@(() => registerRequest.Password)" />
+                </div>
+                <button class="btn btn-primary btn-submit" type="submit">Register</button>
+                <label class="text-danger">@error</label>
+            </EditForm>
+            <button class="btn btn-primary btn-switch" @onclick="NavigateToLogin">Go to Login</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f8fb;
+        color: #333;
+    }
+
+    .register-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding: 20px;
+    }
+
+    .register-card {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .register-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+        .register-header h2 {
+            margin: 0;
+            color: #1e3a8a;
+        }
+
+        .register-header h3 {
+            margin: 10px 0;
+            color: #666;
+        }
+
+    .register-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .register-title {
+        font-size: 28px;
+        margin-bottom: 30px;
+        color: #333;
+    }
+
+    .form-group {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 18px;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 50px;
+        background-color: #1e3a8a;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+        .btn-submit:hover {
+            background-color: #27468f;
+            transform: scale(1.05);
+        }
+
+    .btn-switch {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 50px;
+        background-color: #1e3a8a;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+        .btn-switch:hover {
+            background-color: #27468f;
+            transform: scale(1.05);
+        }
+
+    .text-danger {
+        margin-top: 20px;
+        color: #d9534f;
+    }
+</style>
+
+@code {
+    RegisterTeacherViewModel registerRequest { get; set; } = new RegisterTeacherViewModel();
+    string error { get; set; }
+
+    async Task OnSubmit()
+    {
+        error = null;
+        try
+        {
+            var result = authStateProvider.RegisterTeacher(registerRequest);
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+    void NavigateToLogin()
+    {
+        navigationManager.NavigateTo("/login/teacher");
+    }
+}

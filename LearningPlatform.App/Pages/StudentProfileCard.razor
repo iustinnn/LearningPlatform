@@ -1,0 +1,153 @@
+﻿@page "/student/profile"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@inject IStudentProfileService StudentProfileService
+@inject IAuthenticationService AuthService
+@inject NavigationManager NavigationManager
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <img src="@student?.ProfilePictureUrl" alt="Profile Picture" class="profile-picture" />
+            <h2>@student?.FirstName @student?.LastName</h2>
+            <p class="location">@student?.Email</p>
+            <p class="description">@student?.Description</p>
+            <p class="phone">@student?.PhoneNumber</p>
+        </div>
+        <div class="button-container">
+            <button class="btn-update" @onclick="HandleUpdateClick">Update</button>
+            <button class="btn-logout" @onclick="Logout">Logout</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f8fb;
+        margin: 0;
+        color: #333;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 85vh;
+        padding: 20px;
+    }
+
+    .profile-card {
+        background: white;
+        padding: 40px;
+        border-radius: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+        .profile-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+    .profile-header {
+        margin-bottom: 30px;
+    }
+
+    .profile-picture {
+        border-radius: 50%;
+        width: 180px;
+        height: 180px;
+        object-fit: cover;
+        margin-bottom: 20px;
+        border: 5px solid #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-header h2 {
+        font-size: 24px;
+        margin: 10px 0;
+        color: #1e3a8a;
+    }
+
+    .location, .phone {
+        margin: 5px 0;
+        color: #777;
+        font-size: 16px;
+    }
+
+    .description {
+        margin: 10px 0;
+        color: #555;
+        font-size: 16px;
+        line-height: 1.5;
+        text-align: center;
+    }
+
+    .button-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .btn-update, .btn-logout {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+        font-size: 16px;
+        font-family: 'Roboto', sans-serif;
+        color: white;
+    }
+
+    .btn-update {
+        background-color: #1e3a8a;
+    }
+
+    .btn-logout {
+        background-color: #dc3545;
+    }
+
+    .btn-update:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    .btn-logout:hover {
+        background-color: #b02a37;
+        transform: scale(1.05);
+    }
+</style>
+
+@code {
+    private StudentViewModel student = new StudentViewModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            student = await StudentProfileService.GetStudentProfileAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching student profile: {ex.Message}");
+            student = null;
+        }
+    }
+
+    private void HandleUpdateClick()
+    {
+        NavigationManager.NavigateTo("/student/profile/update");
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.Logout();
+        NavigationManager.NavigateTo("/");
+    }
+}

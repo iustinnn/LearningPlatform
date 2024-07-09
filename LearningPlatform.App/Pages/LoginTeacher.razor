@@ -1,0 +1,161 @@
+﻿@page "/login/teacher"
+@using LearningPlatform.App.ViewModels
+@using Auth
+@inject NavigationManager navigationManager
+@inject CustomStateProvider authStateProvider
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Learning Platform</h2>
+            <h3>Teacher</h3>
+        </div>
+        <div class="login-form">
+            <h1 class="login-title">Login</h1>
+            <EditForm OnValidSubmit="OnSubmit" Model="loginRequest">
+                <DataAnnotationsValidator />
+                <div class="form-group">
+                    <label for="inputEmail">Email</label>
+                    <InputText id="inputEmail" class="form-control" @bind-Value="loginRequest.Email" placeholder="" />
+                    <ValidationMessage For="@(() => loginRequest.Email)" />
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword">Parola</label>
+                    <InputText type="password" id="inputPassword" class="form-control" @bind-Value="loginRequest.Password" placeholder="Password" />
+                    <ValidationMessage For="@(() => loginRequest.Password)" />
+                </div>
+                <button class="btn btn-primary btn-submit" type="submit">Sign In</button>
+                <label class="text-danger">@error</label>
+                <NavLink href="register/teacher">
+                    <button class="btn-create-account">Create Account</button>
+                </NavLink>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f8fb;
+        color: #333;
+    }
+
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding: 20px;
+    }
+
+    .login-card {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+        .login-header h2 {
+            margin: 0;
+            color: #1e3a8a;
+        }
+
+        .login-header h3 {
+            margin: 10px 0;
+            color: #666;
+        }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .login-title {
+        font-size: 28px;
+        margin-bottom: 30px;
+        color: #333;
+    }
+
+    .form-group {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 18px;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 50px;
+        background-color: #1e3a8a;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+        .btn-submit:hover {
+            background-color: #27468f;
+            transform: scale(1.05);
+        }
+
+    .btn-create-account {
+        margin-top: 20px;
+        width: 100%;
+        padding: 15px;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+        .btn-create-account:hover {
+            background-color: #27468f;
+            transform: scale(1.05);
+        }
+
+    .text-danger {
+        margin-top: 20px;
+        color: #d9534f;
+    }
+</style>
+
+@code {
+    LoginViewModel loginRequest { get; set; } = new LoginViewModel();
+    string error { get; set; }
+
+    async Task OnSubmit()
+    {
+        error = null;
+        try
+        {
+            await authStateProvider.Login(loginRequest);
+            navigationManager.NavigateTo("/teachercourses");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}

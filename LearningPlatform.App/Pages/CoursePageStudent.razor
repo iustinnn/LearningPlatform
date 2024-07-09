@@ -1,0 +1,220 @@
+﻿@page "/student/course/{courseId:guid}"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@inject ICourseService CourseService
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject IStudentProfileService StudentService
+@inject IStudentCourseDataService StudentCourseDataService
+@inject IQuizService QuizService
+
+<div class="course-container">
+    @if (course != null)
+    {
+        <div class="course-header">
+            <h1>@course.Title</h1>
+            <p class="course-description">@course.Description</p>
+            <div class="course-meta">
+                <span class="course-dates">Început: @course.StartDate.ToShortDateString()</span>
+                <span class="course-dates">Sfârșit: @course.EndDate.ToShortDateString()</span>
+            </div>
+            <div class="course-actions">
+                <button @onclick="EnrollInCourse" class="btn-enroll">Înscrie-te</button>
+                <button @onclick="ShowAllLessons" class="btn-show-lessons">Vezi lecțiile</button>
+                <button @onclick="TakeQuiz" class="btn-take-quiz">Testează-ți cunoștințele</button>
+            </div>
+        </div>
+        <div class="course-video-wrapper">
+            @if (!string.IsNullOrEmpty(course.VideoUrl))
+            {
+                <div class="video-container">
+                    <iframe src="@course.VideoUrl" frameborder="0" allowfullscreen></iframe>
+                </div>
+            }
+            else
+            {
+                <div class="no-video">No video available</div>
+            }
+        </div>
+    }
+    else
+    {
+        <p>Loading...</p>
+    }
+</div>
+
+<style>
+    .course-container {
+        max-width: 1000px;
+        margin: 20px auto;
+        padding: 20px;
+        font-family: 'Roboto', sans-serif;
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: 2px solid #143060;
+    }
+
+    .course-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+        .course-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #143060;
+        }
+
+    .course-description {
+        font-size: 1.2em;
+        color: #6c757d;
+        margin-bottom: 20px;
+        padding: 0 20px;
+    }
+
+    .course-meta {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 30px;
+        font-size: 1em;
+        color: #495057;
+    }
+
+    .course-actions {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .btn-enroll, .btn-show-lessons, .btn-take-quiz {
+        padding: 15px 30px;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background-color 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-enroll:hover, .btn-show-lessons:hover, .btn-take-quiz:hover {
+            background-color: #143060;
+        }
+
+    .course-video-wrapper {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%;
+        background-color: #000;
+        margin-top: 30px;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .video-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            object-fit: cover;
+        }
+
+    .no-video {
+        padding: 40px;
+        background-color: #e9ecef;
+        border-radius: 15px;
+        color: #6c757d;
+        font-size: 1.2em;
+        text-align: center;
+    }
+</style>
+
+@code {
+    [Parameter] public Guid courseId { get; set; }
+    private CourseDataViewModel course;
+    public Guid studentId;
+    private StudentCourseEnrollViewModel studentCourseEnrollViewModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var userData = await UserService.GetCurrentUser();
+            var student = await StudentService.GetStudentGuidByEmailAsync(userData.UserName);
+            studentId = student.StudentId;
+            course = await CourseService.GetCourseByIdAsync(courseId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading course: {ex.Message}");
+        }
+    }
+
+    private async Task EnrollInCourse()
+    {
+        try
+        {
+            studentCourseEnrollViewModel = new StudentCourseEnrollViewModel
+                {
+                    CourseId = courseId,
+                    StudentId = studentId
+                };
+            var response = await StudentCourseDataService.CreateEnrollAsync(studentCourseEnrollViewModel);
+
+            if (response.IsSuccess)
+            {
+                NavigationManager.NavigateTo($"/student/course/{courseId}/lessons");
+            }
+            else
+            {
+                Console.WriteLine(response.Value);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error enrolling in course: {ex.Message}");
+        }
+    }
+
+    private void ShowAllLessons()
+    {
+        NavigationManager.NavigateTo($"/student/course/{courseId}/lessons");
+    }
+
+    private async Task TakeQuiz()
+    {
+        try
+        {
+            var quizzes = await QuizService.GetQuizzesByCourseId(courseId);
+            if (quizzes != null && quizzes.Any())
+            {
+                var quizId = quizzes.First().Id; // Assuming you want to take the first quiz
+                NavigationManager.NavigateTo($"/quiz/{quizId}");
+            }
+            else
+            {
+                Console.WriteLine("No quizzes available for this course.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error finding quiz for course: {ex.Message}");
+        }
+    }
+}

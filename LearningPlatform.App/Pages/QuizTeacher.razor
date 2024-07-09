@@ -1,0 +1,214 @@
+﻿@page "/teacher/quiz/{quizId:guid}"
+@using LearningPlatform.App.ViewModels
+@using LearningPlatform.App.Contracts
+@inject IQuizService QuizService
+@inject IQuestionService QuestionService
+@inject NavigationManager NavigationManager
+
+<div class="quiz-container">
+    <h1>@quizTitle</h1>
+
+    @if (questions != null && questions.Any())
+    {
+        <EditForm Model="this" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            @foreach (var question in questions)
+            {
+                <div class="question-block">
+                    <label class="question-text">@question.Text</label>
+                    <InputRadioGroup @bind-Value="question.UserAnswer">
+                        <div class="answer-options">
+                            @foreach (var answer in question.ShuffledAnswers)
+                            {
+                                <div class="answer-option">
+                                    <InputRadio Value="@answer" id="@($"answer-{question.Id}-{answer}")" />
+                                    <label for="@($"answer-{question.Id}-{answer}")">@answer</label>
+                                </div>
+                            }
+                        </div>
+                    </InputRadioGroup>
+                </div>
+            }
+
+            <button type="submit" class="btn-submit">Trimite</button>
+        </EditForm>
+
+        @if (resultMessage != null)
+        {
+            <div class="result-message">@resultMessage</div>
+        }
+
+        <button @onclick="NavigateToCreateQuestion" class="btn-add-question">Aadaugă intrebări</button>
+    }
+    else
+    {
+        <p>Loading questions...</p>
+    }
+
+    <button @onclick="NavigateBackToCourse" class="btn-back">Înapoi la curs</button>
+</div>
+
+@code {
+    [Parameter] public Guid quizId { get; set; }
+    private List<QuestionViewModel> questions = new List<QuestionViewModel>();
+    private string resultMessage;
+    private string quizTitle;
+    private Guid courseId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var quiz = await QuizService.GetQuizById(quizId);
+        if (quiz != null)
+        {
+            quizTitle = quiz.Title;
+            courseId = quiz.CourseId; 
+            questions = await QuestionService.GetQuestionsByQuizId(quizId);
+            foreach (var question in questions)
+            {
+                question.ShuffleAnswers();
+            }
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        int correctCount = 0;
+        foreach (var question in questions)
+        {
+            if (question.UserAnswer == question.CorrectAnswer)
+            {
+                correctCount++;
+            }
+        }
+        resultMessage = $"You answered {correctCount} out of {questions.Count} questions correctly.";
+    }
+
+    private void NavigateToCreateQuestion()
+    {
+        NavigationManager.NavigateTo($"/create-question/{quizId}");
+    }
+
+    private void NavigateBackToCourse()
+    {
+        NavigationManager.NavigateTo($"/course/{courseId}");
+    }
+}
+
+<style>
+    body {
+        font-family: 'Open Sans', sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0;
+    }
+
+    .quiz-container {
+        max-width: 800px;
+        margin: 50px auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        text-align: center;
+        color: #1e3a8a;
+        font-size: 2.5em;
+        margin-bottom: 20px;
+    }
+
+    .question-block {
+        margin-bottom: 30px;
+    }
+
+    .question-text {
+        display: block;
+        font-size: 1.2em;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .answer-options {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .answer-option {
+        flex: 1;
+        margin-right: 10px;
+    }
+
+        .answer-option:last-child {
+            margin-right: 0;
+        }
+
+        .answer-option label {
+            margin-left: 5px;
+        }
+
+    .btn-submit {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 25px;
+        background-color: #1e3a8a;
+        color: white;
+        cursor: pointer;
+        font-size: 1.2em;
+        transition: background-color 0.3s;
+        margin-top: 20px;
+    }
+
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+
+    .btn-add-question {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 25px;
+        background-color: #1e3a8a;
+        color: white;
+        cursor: pointer;
+        font-size: 1.2em;
+        transition: background-color 0.3s;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+        .btn-add-question:hover {
+            background-color: #0056b3;
+        }
+
+    .btn-back {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 25px;
+        background-color: #1e3a8a;
+        color: white;
+        cursor: pointer;
+        font-size: 1.2em;
+        transition: background-color 0.3s;
+        margin-top: 20px;
+    }
+
+        .btn-back:hover {
+            background-color: #0056b3;
+        }
+
+    .result-message {
+        margin-top: 20px;
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #1e3a8a;
+        text-align: center;
+    }
+</style>

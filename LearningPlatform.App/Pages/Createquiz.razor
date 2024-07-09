@@ -1,0 +1,87 @@
+﻿@page "/create-quiz/{courseId:guid}"
+@using LearningPlatform.App.ViewModels
+@using LearningPlatform.App.Contracts
+@inject IQuizService QuizService
+@inject NavigationManager NavigationManager
+
+<h3>Create Quiz</h3>
+
+<EditForm Model="newQuiz" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="title">Titlu:</label>
+        <InputText id="title" class="form-control" @bind-Value="newQuiz.Title" />
+    </div>
+    <div class="form-group">
+        <label for="description">Descriere:</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="newQuiz.Description" />
+    </div>
+    <button type="submit" class="btn-submit">Crează Quiz</button>
+</EditForm>
+
+<button class="btn-back" @onclick="GoBack">Înapoi la curs</button>
+
+<style>
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #1e3a8a;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    .btn-submit, .btn-back {
+        width: 100%;
+        padding: 15px;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 18px;
+        margin-top: 10px;
+    }
+
+        .btn-submit:hover, .btn-back:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+@code {
+    [Parameter] public Guid courseId { get; set; }
+    public CreateQuizViewModel newQuiz = new CreateQuizViewModel();
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            newQuiz.CourseId = courseId;
+            var result = await QuizService.CreateQuiz(newQuiz);
+            NavigationManager.NavigateTo($"/create-question/{result.Id}");
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"/course/{courseId}");
+    }
+}

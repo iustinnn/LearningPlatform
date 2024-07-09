@@ -1,0 +1,15 @@
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\bin\Debug\net8.0\LearningPlatform.Application.deps.json
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\bin\Debug\net8.0\LearningPlatform.Application.dll
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\bin\Debug\net8.0\LearningPlatform.Application.pdb
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\bin\Debug\net8.0\LearningPlatform.Domain.dll
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\bin\Debug\net8.0\LearningPlatform.Domain.pdb
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\obj\Debug\net8.0\LearningPlatform.Application.csproj.AssemblyReference.cache
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\obj\Debug\net8.0\LearningPlatform.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\obj\Debug\net8.0\LearningPlatform.Application.AssemblyInfoInputs.cache
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\obj\Debug\net8.0\LearningPlatform.Application.AssemblyInfo.cs
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\obj\Debug\net8.0\LearningPlatform.Application.csproj.CoreCompileInputs.cache
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\obj\Debug\net8.0\LearningPlatform.Application.csproj.CopyComplete
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\obj\Debug\net8.0\LearningPlatform.Application.dll
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\obj\Debug\net8.0\refint\LearningPlatform.Application.dll
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\obj\Debug\net8.0\LearningPlatform.Application.pdb
+D:\Anul3\Licenta\Licenta\LearningPlatform.Application\obj\Debug\net8.0\ref\LearningPlatform.Application.dll

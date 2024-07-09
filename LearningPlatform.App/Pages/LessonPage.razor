@@ -1,0 +1,280 @@
+﻿@page "/lesson/{lessonId:guid}"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@inject ILessonService LessonService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject ChatGPTService ChatService
+
+<div class="lesson-container">
+    @if (lesson != null)
+    {
+        <div class="lesson-header">
+            <h1>@lesson.Title</h1>
+        </div>
+        <div class="lesson-body">
+            <div class="lesson-video-wrapper">
+                @if (!string.IsNullOrEmpty(lesson.VideoUrl))
+                {
+                    <div class="video-container">
+                        <iframe src="@lesson.VideoUrl" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                }
+                else
+                {
+                    <div class="no-video">No video available</div>
+                }
+            </div>
+            <div class="lesson-content">
+                <div class="lesson-section">
+                    <p>@lesson.Description</p>
+                </div>
+
+                <div class="lesson-section">
+     
+                    @if (!string.IsNullOrEmpty(lesson.Content))
+                    {
+                        @((MarkupString)lesson.Content)
+                    }
+                    else
+                    {
+                        <p>No content available</p>
+                    }
+                </div>
+            </div>
+
+
+            <div class="chat-container">
+                <div class="messages">
+                    @foreach (var message in messages)
+                    {
+                        <div class="message">
+                            @if (message.StartsWith("You:"))
+                            {
+                                <span class="user-message">@message</span>
+                            }
+                            else
+                            {
+                                <span class="chatgpt-message">@message</span>
+                            }
+                        </div>
+                    }
+                </div>
+                <input @bind="userInput" @bind:event="oninput" placeholder="Pune o întrebare..." />
+                <button @onclick="SendMessage" class="send-button">Trimite</button>
+            </div>
+
+   
+            <button @onclick="NavigateBack" class="btn-back">Înapoi la lecții</button>
+        </div>
+    }
+    else
+    {
+        <p>Loading lesson...</p>
+    }
+</div>
+
+<style>
+    .lesson-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .lesson-header {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+        .lesson-header h1 {
+            font-size: 2.5em;
+            color: #1e3a8a;
+            font-family: 'Lora', serif;
+            margin-bottom: 20px;
+        }
+
+    .lesson-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .lesson-video-wrapper {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%;
+        background-color: #000;
+        margin-top: 30px;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .video-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            object-fit: cover;
+        }
+
+    .no-video {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #e9ecef;
+        color: #6c757d;
+        font-size: 1.5em;
+        border-radius: 10px;
+    }
+
+    .lesson-content {
+        width: 100%;
+        padding: 20px;
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        text-align: left;
+    }
+
+    .lesson-section {
+        margin-bottom: 25px;
+    }
+
+        .lesson-section h2 {
+            font-size: 2em;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+            font-family: 'Lora', serif;
+        }
+
+        .lesson-section p {
+            font-size: 1.2em;
+            color: #333;
+            line-height: 1.8em;
+        }
+
+    .btn-back {
+        padding: 15px 30px;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 1.2em;
+        margin-top: 30px;
+    }
+
+        .btn-back:hover {
+            background-color: #0056b3;
+        }
+
+    .chat-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        border: 2px solid #ccc;
+        border-radius: 10px;
+        background-color: #f0f0f0;
+    }
+
+    .messages {
+        margin-bottom: 20px;
+    }
+
+    .message {
+        margin-bottom: 10px;
+        font-family: 'Arial', sans-serif;
+        font-size: 1.2em;
+    }
+
+    .user-message {
+        color: #1e3a8a;
+        font-weight: bold;
+    }
+
+    .chatgpt-message {
+        color: #d9534f;
+        font-weight: bold;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 1.2em;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .send-button {
+        width: 100%;
+        padding: 10px 0;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.2em;
+        font-family: 'Arial', sans-serif;
+        text-align: center;
+    }
+</style>
+
+@code {
+    [Parameter] public Guid lessonId { get; set; }
+    private LessonDataViewModel lesson;
+    private string userInput;
+    private List<string> messages = new List<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            lesson = await LessonService.GetLessonById(lessonId);
+            Console.WriteLine("Lesson loaded: " + lesson.Title);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading lesson: {ex.Message}");
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (!string.IsNullOrEmpty(userInput))
+        {
+            messages.Add("You: " + userInput);
+            var response = await ChatService.GetChatGPTResponse(userInput);
+            messages.Add("ChatGPT: " + response);
+            userInput = string.Empty;
+
+        
+            await JSRuntime.InvokeVoidAsync("scrollChatToBottom");
+        }
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo($"/student/course/{lesson.CourseId}/lessons");
+    }
+}

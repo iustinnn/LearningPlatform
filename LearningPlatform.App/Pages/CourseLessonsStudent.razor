@@ -1,0 +1,181 @@
+﻿@page "/student/course/{courseId:guid}/lessons"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@inject ILessonService LessonService
+@inject IAzureDataService BlobHttpClientService
+@inject NavigationManager NavigationManager
+
+<div class="container">
+    <h1>Lecții disponibile</h1>
+
+    @if (lessons != null && lessons.Count > 0)
+    {
+        <div class="lessons-container">
+            @foreach (var lesson in lessons.OrderBy(l => l.Order))
+            {
+                <div class="lesson-card">
+                    <h2>@lesson.Title</h2>
+                    <img src="@(IsValidThumbnail(lesson.Thumbnail) ? lesson.Thumbnail : "thumbnail.jpg")" alt="Thumbnail" class="lesson-thumbnail" onerror="console.log('Error loading image:', this.src);" />
+                    <div class="btn-container">
+                        <button @onclick="() => NavigateToLesson(lesson.LessonId)" class="btn-view-details">Detalii</button>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="quiz-button">
+            <button @onclick="NavigateBackToCourse" class="btn-back-to-course">Înapoi la curs</button>
+        </div>
+    }
+    else
+    {
+        <div class="no-lessons">
+            <h2>Nu sunt lectii disponibile momentan.</h2>
+            <p>Înapoi la <a href="javascript:void(0)" @onclick="NavigateBackToCourse">curs</a>.</p>
+        </div>
+    }
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #1e3a8a;
+    }
+
+    .lessons-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 20px;
+        justify-content: center;
+    }
+
+    .lesson-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: calc(33.333% - 20px);
+        box-sizing: border-box;
+        flex: 1 1 calc(33.333% - 20px);
+        text-align: center;
+        transition: transform 0.3s;
+    }
+
+        .lesson-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .lesson-card h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #1e3a8a;
+        }
+
+    .lesson-thumbnail {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .btn-container {
+        margin-top: auto;
+    }
+
+    .btn-view-details, .btn-back-to-course {
+        padding: 15px 30px;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 18px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-view-details:hover, .btn-back-to-course:hover {
+            background-color: #0056b3;
+        }
+
+    .quiz-button {
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    .no-lessons {
+        text-align: center;
+        margin-top: 50px;
+    }
+
+        .no-lessons h2 {
+            font-size: 2em;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+
+        .no-lessons p {
+            font-size: 1.2em;
+            color: #6c757d;
+        }
+
+        .no-lessons a {
+            color: #0056b3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+            .no-lessons a:hover {
+                text-decoration: underline;
+            }
+</style>
+
+@code {
+    [Parameter] public Guid courseId { get; set; }
+
+    private List<LessonDataViewModel> lessons;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            lessons = await LessonService.GetLessonsByCourseId(courseId);
+            Console.WriteLine("Lessons loaded: " + lessons.Count);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading lessons: {ex.Message}");
+        }
+    }
+
+    private void NavigateToLesson(Guid lessonId)
+    {
+        NavigationManager.NavigateTo($"/lesson/{lessonId}");
+    }
+
+    private void NavigateBackToCourse()
+    {
+        NavigationManager.NavigateTo($"/student/course/{courseId}");
+    }
+
+    private bool IsValidThumbnail(string thumbnailUrl)
+    {
+        if (string.IsNullOrWhiteSpace(thumbnailUrl)) return false;
+        var validExtensions = new[] { ".png", ".jpeg", ".jpg" };
+        return validExtensions.Any(ext => thumbnailUrl.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
+    }
+}

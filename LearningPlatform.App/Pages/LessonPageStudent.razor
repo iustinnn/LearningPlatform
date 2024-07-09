@@ -1,0 +1,151 @@
+﻿@page "/student/lesson/{lessonId:guid}"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@inject ILessonService LessonService
+@inject NavigationManager NavigationManager
+
+<div class="lesson-container">
+    @if (lesson != null)
+    {
+        <div class="lesson-header">
+            <h1>@lesson.Title</h1>
+        </div>
+        <div class="lesson-body">
+            <div class="lesson-video">
+                @if (!string.IsNullOrEmpty(lesson.VideoUrl))
+                {
+                    // <iframe width="800" height="450" src="@lesson.VideoUrl" frameborder="0" allowfullscreen></iframe>
+                    <div class="no-video">No video available</div>
+                }
+                else
+                {
+                    <div class="no-video">No video available</div>
+                }
+            </div>
+            <div class="lesson-content">
+                <div class="lesson-section">
+                    <h2>Description</h2>
+                    <p>@lesson.Description</p>
+                </div>
+
+                <div class="lesson-section">
+                    <h2>Content</h2>
+                    <p>@lesson.Content</p>
+                </div>
+
+
+                <button @onclick="NavigateBack" class="btn-back">Back to Lessons</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>Loading lesson...</p>
+    }
+</div>
+
+<style>
+    .lesson-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f4f8fb;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .lesson-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+        .lesson-header h1 {
+            font-size: 32px;
+            color: #333;
+        }
+
+    .lesson-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .lesson-video {
+        margin-bottom: 20px;
+    }
+
+    .no-video {
+        width: 800px;
+        height: 450px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #e9ecef;
+        color: #6c757d;
+        font-size: 18px;
+        border-radius: 10px;
+    }
+
+    .lesson-content {
+        width: 100%;
+        padding: 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center; /* Center the text */
+    }
+
+    .lesson-section {
+        margin-bottom: 20px;
+    }
+
+        .lesson-section h2 {
+            font-size: 24px;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .lesson-section p {
+            font-size: 16px;
+            color: #333;
+        }
+
+    .btn-back {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 20px;
+    }
+
+        .btn-back:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+@code {
+    [Parameter] public Guid lessonId { get; set; }
+    private LessonDataViewModel lesson;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            lesson = await LessonService.GetLessonById(lessonId);
+            Console.WriteLine("Lesson loaded: " + lesson.Title);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading lesson: {ex.Message}");
+            
+        }
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo($"/course/{lesson.CourseId}/lessons");
+    }
+}

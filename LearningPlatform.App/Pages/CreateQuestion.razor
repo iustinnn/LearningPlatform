@@ -1,0 +1,154 @@
+﻿@page "/create-question/{quizId:guid}"
+@using LearningPlatform.App.ViewModels
+@using LearningPlatform.App.Contracts
+@inject IQuestionService QuestionService
+@inject NavigationManager NavigationManager
+
+<h3>Crează întrebări pentru Quiz</h3>
+
+<EditForm Model="this" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    @foreach (var question in newQuestions)
+    {
+        <div class="question-container">
+            <h4>@($"Îintrebarea {newQuestions.IndexOf(question) + 1}")</h4>
+            <div class="form-group">
+                <label for="text">@($"Întrebare {newQuestions.IndexOf(question) }"):</label>
+                <InputTextArea id="text" class="form-control" @bind-Value="question.Text" />
+            </div>
+            <div class="form-group">
+                <label for="answer1">@($"Răspuns 1 "):</label>
+                <InputText id="answer1" class="form-control" @bind-Value="question.Answer1" />
+            </div>
+            <div class="form-group">
+                <label for="answer2">@($"Răspuns 2 "):</label>
+                <InputText id="answer2" class="form-control" @bind-Value="question.Answer2" />
+            </div>
+            <div class="form-group">
+                <label for="answer3">@($"Răspuns 3 "):</label>
+                <InputText id="answer3" class="form-control" @bind-Value="question.Answer3" />
+            </div>
+            <div class="form-group">
+                <label for="correctAnswer">@($"Răspuns corect {newQuestions.IndexOf(question) + 1}"):</label>
+                <InputText id="correctAnswer" class="form-control" @bind-Value="question.CorrectAnswer" />
+            </div>
+        </div>
+    }
+
+    <button type="submit" class="btn-submit">Trimite</button>
+</EditForm>
+
+<button class="btn-back" @onclick="NavigateBack">Înapoi la quiz</button>
+
+@code {
+    [Parameter] public Guid quizId { get; set; }
+    private List<CreateQuestionViewModel> newQuestions = new List<CreateQuestionViewModel>
+    {
+        new CreateQuestionViewModel(),
+        new CreateQuestionViewModel(),
+        new CreateQuestionViewModel(),
+        new CreateQuestionViewModel(),
+        new CreateQuestionViewModel()
+    };
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            foreach (var question in newQuestions)
+            {
+                question.QuizId = quizId;
+                await QuestionService.CreateQuestion(question);
+            }
+            NavigationManager.NavigateTo($"/teacher/quiz/{quizId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo($"/teacher/quiz/{quizId}");
+    }
+}
+
+<style>
+    .question-container {
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #1e3a8a;
+            font-size: 16px;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #1e3a8a;
+            outline: none;
+        }
+
+    .btn-submit {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 25px;
+        background-color: #1e3a8a;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+        margin-top: 20px;
+    }
+
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+
+    .btn-back {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 25px;
+        background-color: #1e3a8a;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+        .btn-back:hover {
+            background-color: #343a40;
+        }
+
+    h3, h4 {
+        font-family: 'Lora', serif;
+        color: #1e3a8a;
+    }
+</style>

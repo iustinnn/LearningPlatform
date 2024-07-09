@@ -1,0 +1,139 @@
+﻿@page "/courses"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@using LearningPlatform.Domain.Entities
+@using System.Threading.Tasks
+@inject IStudentCourseDataService StudentCourseDataService
+@inject ICourseService CourseService
+@inject IStudentProfileService StudentProfileService
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+
+<div class="container">
+    <h1>Cursuri</h1>
+    <div class="button-container">
+        <button @onclick="ShowAllCourses" class="btn-fetch-courses">Toate cursurile</button>
+        <button @onclick="ShowEnrolledCourses" class="btn-enrolled-courses">Cursurile mele</button>
+    </div>
+    @if (courses != null && courses.Count > 0)
+    {
+        <div class="courses-container">
+            @foreach (var course in courses)
+            {
+                <div class="course-card">
+                    <h2>@course.Title</h2>
+                    <p>@course.Description</p>
+                    <p><strong>Start Date:</strong> @course.StartDate.ToString("MM/dd/yyyy")</p>
+                    <p><strong>End Date:</strong> @course.EndDate.ToString("MM/dd/yyyy")</p>
+                    <button @onclick="() => NavigateToCourse(course.CourseId)" class="btn-view-details">Detalii</button>
+                </div>
+            }
+        </div>
+    }
+    else if (courses != null)
+    {
+        <p>No courses available.</p>
+    }
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .btn-fetch-courses, .btn-enrolled-courses {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .btn-fetch-courses:hover, .btn-enrolled-courses:hover {
+            background-color: #0056b3;
+        }
+
+    .courses-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .course-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: calc(33.333% - 20px);
+        box-sizing: border-box;
+    }
+
+        .course-card h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .course-card p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+    .btn-view-details {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .btn-view-details:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+@code {
+    private List<CourseDataViewModel> courses;
+    private string currentStudentEmail;
+    private StudentViewModel currentStudent;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var currentUser = await UserService.GetCurrentUser();
+        currentStudentEmail = currentUser.UserName;
+    }
+
+    private async Task ShowAllCourses()
+    {
+        Console.WriteLine("Fetching all courses...");
+        courses = await CourseService.GetAllCoursesAsync();
+        Console.WriteLine($"Fetched {courses.Count} courses.");
+    }
+
+    private async Task ShowEnrolledCourses()
+    {
+        Console.WriteLine("Fetching enrolled courses...");
+        currentStudent = await StudentProfileService.GetStudentGuidByEmailAsync(currentStudentEmail);
+        Console.WriteLine($"Fetched {currentStudent.Email}");
+        courses = await StudentCourseDataService.GetCourseIdsByStudentId(currentStudent.StudentId);
+        Console.WriteLine($"Fetched {courses.Count} enrolled courses.");
+    }
+
+    private void NavigateToCourse(Guid courseId)
+    {
+        NavigationManager.NavigateTo($"/course/{courseId}");
+    }
+}

@@ -1,0 +1,289 @@
+﻿@page "/course/{courseId:guid}"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@inject ICourseService CourseService
+@inject NavigationManager NavigationManager
+@inject IQuizService QuizService
+@inject IAzureDataService BlobHttpClientService
+
+<div class="container">
+    <h1>Update Curs</h1>
+    @if (course != null)
+    {
+        <EditForm Model="course" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="title">Titlu:</label>
+                <InputText id="title" class="form-control" @bind-Value="course.Title" />
+            </div>
+            <div class="form-group">
+                <label for="description">Descriere:</label>
+                <InputTextArea id="description" class="form-control" @bind-Value="course.Description" />
+            </div>
+            <div class="form-group">
+                <label for="startDate">Început:</label>
+                <InputDate id="startDate" class="form-control" @bind-Value="course.StartDate" />
+            </div>
+            <div class="form-group">
+                <label for="endDate">Final:</label>
+                <InputDate id="endDate" class="form-control" @bind-Value="course.EndDate" />
+            </div>
+            <div class="form-group">
+                <label for="videoUrl">Video URL:</label>
+                <InputText id="videoUrl" class="form-control" @bind-Value="course.VideoUrl" />
+            </div>
+            <div class="form-group">
+                <label for="video">Upload Video:</label>
+                <InputFile OnChange="HandleVideoSelected" class="custom-file-input" />
+            </div>
+            <div class="form-group">
+                <label for="thumbnail">Upload Thumbnail:</label>
+                <InputFile OnChange="HandleThumbnailSelected" class="custom-file-input" />
+            </div>
+
+            <div class="button-container">
+                <button type="submit" class="btn-submit">Update Curs</button>
+                <button type="button" class="btn-cancel" @onclick="CancelUpdateCourse">Cancel</button>
+                <button type="button" class="btn-submit btn-verify-upload @(isVerified ? "verified" : "")" @onclick="VerifyUploads">Verifica upload-ul</button>
+            </div>
+        </EditForm>
+        <div class="show-lessons-container">
+            <button @onclick="ShowAllLessons" class="btn-show-lessons">Arată lecțiile</button>
+            @if (quizExists)
+            {
+                <button @onclick="NavigateToCreateQuestion" class="btn-add-quiz">Adaugă Întrebări</button>
+            }
+            else
+            {
+                <button @onclick="NavigateToCreateQuiz" class="btn-add-quiz">Adaugă Quiz</button>
+            }
+        </div>
+    }
+    else
+    {
+        <p>Loading...</p>
+    }
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        font-family: 'Roboto', sans-serif;
+        text-align: center;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #143060;
+    }
+
+    h1 {
+        color: #1e3a8a;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #1e3a8a;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #1e3a8a;
+            outline: none;
+        }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .btn-submit, .btn-cancel, .btn-show-lessons, .btn-verify-upload, .btn-add-quiz {
+        padding: 15px 30px;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 18px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-submit:hover, .btn-cancel:hover, .btn-show-lessons:hover, .btn-verify-upload:hover, .btn-add-quiz:hover {
+            background-color: #0056b3;
+        }
+
+    .show-lessons-container {
+        margin-top: 30px;
+    }
+
+    .btn-verify-upload.verified {
+        background-color: #28a745;
+    }
+
+        .btn-verify-upload.verified::after {
+            content: "Verified";
+            color: white;
+            font-weight: bold;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+    .custom-file-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+        .custom-file-input:focus {
+            border-color: #1e3a8a;
+            outline: none;
+        }
+</style>
+
+@code {
+    [Parameter] public Guid courseId { get; set; }
+    private UpdateCourseViewModel course;
+    private IBrowserFile selectedVideoFile;
+    private IBrowserFile selectedThumbnailFile;
+    private string VideoUri;
+    private string Thumbnail;
+    private bool isVerified = false;
+    private bool quizExists = false;
+    private Guid existingQuizId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var courseData = await CourseService.GetCourseByIdAsync(courseId);
+            course = new UpdateCourseViewModel
+                {
+                    CourseId = courseData.CourseId,
+                    Title = courseData.Title,
+                    Description = courseData.Description,
+                    StartDate = courseData.StartDate,
+                    EndDate = courseData.EndDate,
+                    VideoUrl = courseData.VideoUrl,
+                    Thumbnail = courseData.Thumbnail
+                };
+
+            var quizzes = await QuizService.GetQuizzesByCourseId(courseId);
+            quizExists = quizzes.Any();
+            if (quizExists)
+            {
+                existingQuizId = quizzes.First().Id;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading course: {ex.Message}");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            course.StartDate = course.StartDate.ToUniversalTime();
+            course.EndDate = course.EndDate.ToUniversalTime();
+            course.VideoUrl = VideoUri;
+            course.Thumbnail = Thumbnail;
+            var response = await CourseService.UpdateCourseAsync(course);
+
+            if (response.IsSuccess)
+            {
+                NavigationManager.NavigateTo("/teachercourses");
+            }
+            else
+            {
+                Console.WriteLine(response.Value);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating course: {ex.Message}");
+        }
+    }
+
+    private void CancelUpdateCourse()
+    {
+        NavigationManager.NavigateTo("/teachercourses");
+    }
+
+    private void ShowAllLessons()
+    {
+        NavigationManager.NavigateTo($"/course/{courseId}/lessons");
+    }
+
+    private void NavigateToCreateQuiz()
+    {
+        NavigationManager.NavigateTo($"/create-quiz/{courseId}");
+    }
+
+    private void NavigateToCreateQuestion()
+    {
+        NavigationManager.NavigateTo($"/create-question/{existingQuizId}");
+    }
+
+    private void HandleVideoSelected(InputFileChangeEventArgs e)
+    {
+        selectedVideoFile = e.File;
+    }
+
+    private void HandleThumbnailSelected(InputFileChangeEventArgs e)
+    {
+        selectedThumbnailFile = e.File;
+    }
+
+    private async Task VerifyUploads()
+    {
+        if (selectedVideoFile != null)
+        {
+            var videoUploadResult = await BlobHttpClientService.UploadFiles(new List<IBrowserFile> { selectedVideoFile });
+            VideoUri = videoUploadResult[0].Uri;
+        }
+        else
+        {
+            Console.WriteLine("No video file selected to verify.");
+        }
+
+        if (selectedThumbnailFile != null)
+        {
+            var thumbnailUploadResult = await BlobHttpClientService.UploadFiles(new List<IBrowserFile> { selectedThumbnailFile });
+            Thumbnail = thumbnailUploadResult[0].Uri;
+        }
+        else
+        {
+            Console.WriteLine("No thumbnail file selected to verify.");
+        }
+
+        isVerified = true;
+    }
+}

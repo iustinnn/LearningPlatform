@@ -1,0 +1,147 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = LearningPlatform.App
+build_property.RootNamespace = LearningPlatform.App
+build_property.ProjectDir = D:\Anul3\Licenta\Licenta\LearningPlatform.App\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = D:\Anul3\Licenta\Licenta\LearningPlatform.App
+build_property._RazorSourceGeneratorDebug = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Layout/StudentNavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XFN0dWRlbnROYXZNZW51LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Layout/TeacherNavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XFRlYWNoZXJOYXZNZW51LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/AllCourses.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWxsQ291cnNlcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/AllCoursesStudents.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWxsQ291cnNlc1N0dWRlbnRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/Chat.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2hhdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/Component.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29tcG9uZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/CourseLessons.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291cnNlTGVzc29ucy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/CourseLessonsStudent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291cnNlTGVzc29uc1N0dWRlbnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/CoursePage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291cnNlUGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/CoursePageStudent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291cnNlUGFnZVN0dWRlbnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/Courses.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291cnNlcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/CreateQuestion.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRlUXVlc3Rpb24ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/Createquiz.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRlcXVpei5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/LessonPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGVzc29uUGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/LessonPageStudent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGVzc29uUGFnZVN0dWRlbnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/LoginStudent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW5TdHVkZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/LoginTeacher.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW5UZWFjaGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/QuizStudent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUXVpelN0dWRlbnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/QuizTeacher.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUXVpelRlYWNoZXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/RegisterStudent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVnaXN0ZXJTdHVkZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/RegisterTeacher.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVnaXN0ZXJUZWFjaGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/StudentProfileCard.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU3R1ZGVudFByb2ZpbGVDYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/TeacherAllCourses.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVhY2hlckFsbENvdXJzZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/TeacherProfileCard.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVhY2hlclByb2ZpbGVDYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/UpdateStudentProfile.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXBkYXRlU3R1ZGVudFByb2ZpbGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Pages/UpdateTeacherProfile.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXBkYXRlVGVhY2hlclByb2ZpbGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-8k56hc87ya
+
+[D:/Anul3/Licenta/Licenta/LearningPlatform.App/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-qaurhbvqlm

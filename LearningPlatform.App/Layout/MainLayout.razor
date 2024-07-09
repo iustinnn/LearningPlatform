@@ -1,0 +1,105 @@
+﻿@using LearningPlatform.App.Auth
+@using LearningPlatform.App.Contracts
+@inherits LayoutComponentBase
+@inject CustomStateProvider authStateProvider
+@inject IUserService userService
+@inject NavigationManager navigationManager
+
+<div class="page">
+    <header>
+        @if (userRole == "Student")
+        {
+            <StudentNavMenu />
+        }
+        else if (userRole == "Teacher")
+        {
+            <TeacherNavMenu />
+        }
+        else
+        {
+            <NavMenu /> 
+        }
+    </header>
+
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html, body {
+        height: 100%; 
+        width: 100%;
+        overflow-x: hidden; 
+    }
+
+ 
+    .page {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden; 
+    }
+
+    header {
+        width: 100%;
+        position: fixed;
+        top: 0;
+        z-index: 1000; 
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+ 
+    main {
+        padding-top: 60px; 
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    .content {
+        flex-grow: 1;
+        overflow-y: auto; 
+    }
+</style>
+
+@code {
+    private string? userRole;
+
+    protected override async Task OnInitializedAsync()
+    {
+        navigationManager.LocationChanged += HandleLocationChanged;
+        await UpdateUserRoleAsync();
+    }
+
+    private async Task UpdateUserRoleAsync()
+    {
+        var currentUser = await userService.GetCurrentUser();
+        if(currentUser == null)
+		{
+			userRole = "Guest";
+			return;
+		}
+        Console.WriteLine(currentUser.IsAuthenticated);
+        userRole = currentUser.IsAuthenticated ? currentUser.UserRole : "Guest";
+        StateHasChanged(); 
+    }
+
+    private async void HandleLocationChanged(object sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        await UpdateUserRoleAsync();
+    }
+
+    public void Dispose()
+    {
+        navigationManager.LocationChanged -= HandleLocationChanged;
+    }
+}

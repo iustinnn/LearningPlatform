@@ -1,0 +1,57 @@
+﻿@inject NavigationManager NavManager
+
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1e3a8a;">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#" @onclick="NavigateHome">
+            <img src="https://stlearnplatform.blob.core.windows.net/stplatformcontainer/a-sleek-and-modern-learning-platform-logo-featurin-trfkgDf_R22lV3aft5jZRw-2IJ68gTKRlCmG-OcPse6-Q-fotor-bg-remover-20240702221651.png" alt="Home" style="width: 40px; height: 40px;">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            </ul>
+            <ul class="navbar-nav">
+            
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .navbar-nav .nav-link {
+        color: #fff;
+    }
+
+    .dropend .dropdown-toggle {
+        color: #1e3a8a;
+        margin-left: 1em;
+    }
+
+    .dropdown-item:hover {
+        background-color: #1e3a8a;
+        color: #fff;
+    }
+
+    .dropdown .dropdown-menu {
+        display: none;
+    }
+
+    .dropdown:hover > .dropdown-menu,
+    .dropend:hover > .dropdown-menu {
+        display: block;
+        margin-top: 0.125em;
+        margin-left: 0.125em;
+    }
+
+    .dropend .dropdown-toggle {
+        margin-left: 0.5em;
+    }
+</style>
+
+@code {
+    private void NavigateHome()
+    {
+        NavManager.NavigateTo("/");
+    }
+}

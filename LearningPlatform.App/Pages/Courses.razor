@@ -1,0 +1,229 @@
+﻿@page "/coursemanagement"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@using Auth
+@inject NavigationManager navigationManager
+@inject CustomStateProvider authStateProvider
+@inject IStudentProfileService studentProfileService
+@inject IJSRuntime JSRuntime
+@inject IStudentCourseDataService studentCourseService
+
+
+<div class="course-container">
+    <div class="course-card">
+        <div class="course-header">
+            <h2>Course Management</h2>
+            <label for="courseId">Enter Course ID:</label>
+            <input type="text" id="courseId" @bind="courseId" />
+            <button class="btn-load-students" @onclick="LoadStudents">Load Students</button>
+        </div>
+        @if (students.Any())
+        {
+            <ul>
+                @foreach (var student in students)
+                {
+                    <li @onclick="() => EditStudent(student)">
+                        @student.FirstName @student.LastName
+                        @student.Email
+                    </li>
+                }
+            </ul>
+        }
+        <EditForm Model="editStudent" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <InputText id="firstName" class="form-control" @bind-Value="editStudent.FirstName" />
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <InputText id="lastName" class="form-control" @bind-Value="editStudent.LastName" />
+            </div>
+
+            <button type="submit" class="btn-submit">Update Student</button>
+        </EditForm>
+    </div>
+</div>
+
+
+<div class="course-container">
+    <div class="course-card">
+        <div class="course-header">
+            <h2>Course Management</h2>
+            <label for="courseId">Enter Course ID:</label>
+            <input type="text" id="studentId" @bind="studentId" />
+            <button class="btn-load-students" @onclick="LoadCourses">Load Students</button>
+        </div>
+        @if (courses.Any())
+        {
+            <ul>
+                @foreach (var course in courses)
+                {
+                    <li @onclick="() => EditCourse(course)">
+                         @course.TeacherId
+                        @course.VideoUrl
+                        @course.CourseId
+                    </li>
+                }
+            </ul>
+        }
+        <EditForm Model="editCourse" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <InputText id="firstName" class="form-control" @bind-Value="editStudent.FirstName" />
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <InputText id="lastName" class="form-control" @bind-Value="editStudent.LastName" />
+            </div>
+
+            <button type="submit" class="btn-submit">Update Student</button>
+        </EditForm>
+    </div>
+</div>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f3f4f6;
+        color: #333;
+    }
+
+    .course-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .course-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .course-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+        .course-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .course-header label {
+            display: block;
+            margin: 10px 0;
+            color: #666;
+        }
+
+    .btn-load-students {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .form-group {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+    }
+</style>
+
+@code {
+    private List<StudentViewModel> students = new List<StudentViewModel>();
+    private StudentViewModel editStudent = new StudentViewModel();
+    private CourseDataViewModel editCourse = new CourseDataViewModel();
+
+
+
+
+    private List<CourseDataViewModel> courses = new List<CourseDataViewModel>();
+
+    private string courseId;
+
+    private string studentId;
+
+    private async Task HandleValidSubmit()
+    {
+       /* var result = await studentProfileService.UpdateStudentAsync(editStudent);
+        if (result.IsSuccess)
+        {
+            Console.WriteLine("Student updated successfully.");
+            navigationManager.NavigateTo("/coursemanagement");
+        }
+        else
+        {
+            Console.WriteLine("Failed to update student.");
+        }
+        */
+    }
+
+    private async Task LoadStudents()
+    {
+        if (Guid.TryParse(courseId, out Guid parsedCourseId))
+        {
+            students = await studentCourseService.GetStudentsByCourseId(parsedCourseId);
+            Console.WriteLine(students);
+        }
+        else
+        {
+            Console.WriteLine("Invalid Course ID.");
+        }
+    }
+
+
+    private async Task LoadCourses()
+    {
+        if (Guid.TryParse(studentId, out Guid parsedStudentId))
+        {
+            courses = await studentCourseService.GetCourseIdsByStudentId(parsedStudentId);
+            Console.WriteLine(courses);
+        }
+        else
+        {
+            Console.WriteLine("Invalid Course ID.");
+        }
+    }
+
+
+
+    private void EditStudent(StudentViewModel student)
+    {
+        editStudent = student; 
+    }
+    private void EditCourse(CourseDataViewModel course)
+    {
+        editCourse = course; 
+    }
+}

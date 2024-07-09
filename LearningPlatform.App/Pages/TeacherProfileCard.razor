@@ -1,0 +1,131 @@
+﻿@page "/teacher/profile"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@inject ITeacherService TeacherService
+@inject IAuthenticationService AuthService
+@inject NavigationManager NavigationManager
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <img src="@teacher?.ProfilePictureUrl" alt="Profile Picture" class="profile-picture" />
+            <h2>@teacher?.FirstName @teacher?.LastName</h2>
+            <p class="location">@teacher?.Email</p>
+            <p class="description">@teacher?.Description</p>
+            <p class="phone">@teacher?.PhoneNumber</p>
+        </div>
+        <button class="btn-show-more" @onclick="HandleShowMoreClick">Update</button>
+        <button class="btn-logout" @onclick="Logout">Logout</button>
+    </div>
+</div>
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh - 60px);
+        font-family: 'Arial', sans-serif;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .profile-card {
+        background: white;
+        padding: 60px;
+        border-radius: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        max-width: 700px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .profile-header {
+        margin-bottom: 30px;
+    }
+
+    .profile-picture {
+        border-radius: 50%;
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        margin-bottom: 20px;
+        border: 5px solid #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-header h2 {
+        font-size: 28px;
+        margin: 10px 0;
+        color: #333;
+    }
+
+    .location, .description, .phone {
+        margin: 5px 0;
+        color: #777;
+        font-size: 16px;
+    }
+
+    .btn-show-more, .btn-logout {
+        margin-top: 30px;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        color: white;
+    }
+
+    .btn-show-more {
+        background-color: #1e3a8a;
+    }
+
+    .btn-logout {
+        background-color: #dc3545;
+    }
+
+    .btn-show-more:hover {
+        background-color: #1e3a8a;
+    }
+
+    .btn-logout:hover {
+        background-color: #b02a37;
+    }
+</style>
+
+@code {
+    private TeacherViewModel teacher = new TeacherViewModel();
+    private string buttonText = "Show more";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            teacher = await TeacherService.GetTeacherProfileAsync();
+            Console.WriteLine(teacher.TeacherId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching teacher profile: {ex.Message}");
+            teacher = null;
+        }
+    }
+
+    private void HandleShowMoreClick()
+    {
+    
+            NavigationManager.NavigateTo("/teacher/profile/update");
+        
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.Logout();
+        NavigationManager.NavigateTo("/");
+    }
+}

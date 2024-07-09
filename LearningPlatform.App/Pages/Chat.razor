@@ -1,0 +1,65 @@
+﻿@page "/chat"
+@using LearningPlatform.App.Services
+@inject ChatGPTService ChatService
+
+<div class="chat-container">
+    <div class="messages">
+        @foreach (var message in messages)
+        {
+            <div class="message">@message</div>
+        }
+    </div>
+    <input @bind="userInput" @bind:event="oninput" placeholder="Type your question..." />
+    <button @onclick="SendMessage">Send</button>
+</div>
+
+<style>
+    .chat-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+    }
+
+    .messages {
+        margin-bottom: 20px;
+    }
+
+    .message {
+        margin-bottom: 10px;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        padding: 10px 20px;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
+
+@code {
+    private string userInput;
+    private List<string> messages = new List<string>();
+
+    private async Task SendMessage()
+    {
+        if (!string.IsNullOrEmpty(userInput))
+        {
+            messages.Add("You: " + userInput);
+            var response = await ChatService.GetChatGPTResponse(userInput);
+            messages.Add("ChatGPT: " + response);
+            userInput = string.Empty;
+        }
+    }
+}

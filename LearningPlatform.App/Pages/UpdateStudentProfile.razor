@@ -1,0 +1,209 @@
+﻿@page "/student/profile/update"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@using Auth
+@inject NavigationManager navigationManager
+@inject CustomStateProvider authStateProvider
+@inject IStudentProfileService studentProfileService
+@inject IJSRuntime JSRuntime
+@inject IStudentCourseDataService studentCourseService
+@inject IStudentProfileService StudentProfileService
+@inject IUserService UserService
+@inject IAzureDataService BlobHttpClientService
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <h2>Update profil Student</h2>
+        </div>
+        @if (editStudent != null)
+        {
+            <EditForm Model="editStudent" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-group">
+                    <label for="firstName">Nume de familie:</label>
+                    <InputText id="firstName" class="form-control" @bind-Value="editStudent.FirstName" />
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Prenume:</label>
+                    <InputText id="lastName" class="form-control" @bind-Value="editStudent.LastName" />
+                </div>
+                <div class="form-group">
+                    <label for="phone">Număr de telefon:</label>
+                    <InputText id="phone" class="form-control" @bind-Value="editStudent.PhoneNumber" />
+                </div>
+                <div class="form-group">
+                    <label for="description">Descriere:</label>
+                    <InputTextArea id="description" class="form-control" @bind-Value="editStudent.Description" />
+                </div>
+
+                <button type="submit" class="btn-submit">Update Profil</button>
+            </EditForm>
+            <div class="form-group file-upload-group">
+                <InputFile OnChange="HandleFileSelected" />
+            </div>
+            <button class="btn-upload @(isUploadSuccess ? "success" : "")" @onclick="UploadFile">Upload poză</button>
+            <button class="btn-back" @onclick="NavigateBack">Înapoi la Profil</button>
+        }
+        else
+        {
+            <p>Loading...</p>
+        }
+    </div>
+</div>
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .profile-card {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        max-width: 350px;
+        width: 100%;
+    }
+
+    .profile-header {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+        .profile-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 24px;
+        }
+
+    .form-group {
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #1e3a8a;
+            font-size: 16px;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #1e3a8a;
+            outline: none;
+        }
+
+    .btn-submit, .btn-back, .btn-upload {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 20px;
+        background-color: #1e3a8a;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+        margin-top: 10px;
+    }
+
+        .btn-submit:hover, .btn-back:hover, .btn-upload:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-upload.success {
+            background-color: #28a745;
+        }
+
+    .form-group.file-upload-group {
+        margin-top: 20px;
+    }
+</style>
+
+@code {
+    private UpdateStudentViewModel editStudent = new UpdateStudentViewModel();
+    private StudentViewModel currentStudent;
+    private IBrowserFile selectedFile;
+    private bool isUploadSuccess = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchStudentProfile();
+    }
+
+    private async Task FetchStudentProfile()
+    {
+        currentStudent = await StudentProfileService.GetStudentProfileAsync();
+        editStudent.StudentId = currentStudent.StudentId;
+        editStudent.FirstName = currentStudent.FirstName;
+        editStudent.LastName = currentStudent.LastName;
+        editStudent.PhoneNumber = currentStudent.PhoneNumber;
+        editStudent.Description = currentStudent.Description;
+        editStudent.ProfilePictureUrl = currentStudent.ProfilePictureUrl;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var result = await StudentProfileService.UpdateStudentAsync(editStudent);
+        if (result.IsSuccess)
+        {
+            NavigateBack();
+        }
+        else
+        {
+            Console.WriteLine("Failed to update profile.");
+        }
+    }
+
+    private void NavigateBack()
+    {
+        navigationManager.NavigateTo("/student/profile");
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+    }
+
+    private async Task UploadFile()
+    {
+        if (selectedFile != null)
+        {
+            var result = await BlobHttpClientService.UploadFiles(new List<IBrowserFile> { selectedFile });
+            var fileUrl = result[0].Uri;
+            editStudent.ProfilePictureUrl = fileUrl;
+
+            var updateResult = await StudentProfileService.UpdateStudentAsync(editStudent);
+            if (updateResult.IsSuccess)
+            {
+                isUploadSuccess = true;
+                NavigateBack();
+            }
+            else
+            {
+                Console.WriteLine("Failed to update profile picture.");
+            }
+        }
+    }
+}

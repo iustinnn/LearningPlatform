@@ -1,0 +1,398 @@
+﻿@page "/teachercourses"
+@using LearningPlatform.App.Contracts
+@using LearningPlatform.App.ViewModels
+@using LearningPlatform.Domain.Entities
+@inject IStudentCourseDataService StudentCourseDataService
+@inject ICourseService CourseService
+@inject IStudentProfileService StudentProfileService
+@inject ITeacherService TeacherService
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject IAzureDataService BlobHttpClientService
+
+<div class="container">
+    <h1>Cursuri</h1>
+    <div class="button-container">
+        <button @onclick="ShowAllCourses" class="btn-fetch-courses">Toate cursurile</button>
+        <button @onclick="ShowEnrolledCourses" class="btn-enrolled-courses">Cursurile mele</button>
+        <button @onclick="OpenCreateCourseForm" class="btn-create-course">Crează curs</button>
+    </div>
+
+    @if (showCreateCourseForm)
+    {
+        <EditForm Model="newCourse" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <InputText id="title" class="form-control" @bind-Value="newCourse.Title" />
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <InputTextArea id="description" class="form-control" @bind-Value="newCourse.Description" />
+            </div>
+            <div class="form-group">
+                <label for="startDate">Start Date:</label>
+                <InputDate id="startDate" class="form-control" @bind-Value="newCourse.StartDate" />
+            </div>
+            <div class="form-group">
+                <label for="endDate">End Date:</label>
+                <InputDate id="endDate" class="form-control" @bind-Value="newCourse.EndDate" />
+            </div>
+            <div class="form-group">
+                <label for="thumbnail">Thumbnail:</label>
+                <InputFile OnChange="HandleThumbnailSelected" class="custom-file-input" />
+            </div>
+            <div class="form-group">
+                <label for="video">Video:</label>
+                <InputFile OnChange="HandleVideoSelected" class="custom-file-input" />
+            </div>
+            <div class="button-container">
+                <button type="submit" class="btn-submit">Create Course</button>
+                <button type="button" class="btn-cancel" @onclick="CancelCreateCourse">Cancel</button>
+                <button type="button" class="btn-verify-upload @(isVerified ? "verified" : "")" @onclick="VerifyUploads">Verify Uploads</button>
+            </div>
+        </EditForm>
+    }
+    else
+    {
+        @if (courses != null && courses.Count > 0)
+        {
+            <div class="courses-container">
+                @foreach (var course in courses)
+                {
+                    <div class="course-card">
+                        <img src="@course.Thumbnail" alt="Thumbnail" class="course-thumbnail" />
+                        <div class="course-content">
+                            <h2>@course.Title</h2>
+                            <p>@course.Description</p>
+                            <p><strong>Start Date:</strong> @course.StartDate.ToString("MM/dd/yyyy")</p>
+                            <p><strong>End Date:</strong> @course.EndDate.ToString("MM/dd/yyyy")</p>
+                            <div class="button-container-bottom">
+                                <button @onclick="() => NavigateToCourse(course.CourseId)" class="btn-view-details">Detalii</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else if (courses != null)
+        {
+            <p>No courses available.</p>
+        }
+    }
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Roboto', sans-serif;
+        text-align: center;
+    }
+
+    h1 {
+        color: #1e3a8a;
+        margin-bottom: 20px;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .btn-fetch-courses, .btn-enrolled-courses, .btn-create-course,
+    .btn-submit, .btn-cancel, .btn-verify-upload {
+        padding: 15px 30px;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: background-color 0.3s, background-image 0.3s;
+        font-size: 18px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-fetch-courses::after, .btn-enrolled-courses::after, .btn-create-course::after,
+        .btn-submit::after, .btn-cancel::after, .btn-verify-upload::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-fetch-courses:hover::after, .btn-enrolled-courses:hover::after, .btn-create-course:hover::after,
+        .btn-submit:hover::after, .btn-cancel:hover::after, .btn-verify-upload:hover::after {
+            opacity: 0.3;
+        }
+
+        .btn-fetch-courses:hover, .btn-enrolled-courses:hover, .btn-create-course:hover,
+        .btn-submit:hover, .btn-cancel:hover, .btn-verify-upload:hover {
+            background-color: #143060;
+        }
+
+        .btn-verify-upload.verified {
+            background-color: #28a745;
+        }
+
+    .courses-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .course-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        width: calc(33.333% - 20px);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s;
+    }
+
+        .course-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
+        }
+
+    .course-thumbnail {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .course-content {
+        padding: 15px;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex-grow: 1;
+    }
+
+        .course-content h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #1e3a8a;
+        }
+
+        .course-content p {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+    .button-container-bottom {
+        display: flex;
+        justify-content: center; /* Center the button */
+        margin-top: auto;
+    }
+
+    .btn-view-details {
+        padding: 10px 20px;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 20px; /* Make the button round */
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 14px;
+    }
+
+        .btn-view-details:hover {
+            background-color: #143060;
+        }
+
+    .course-card p strong {
+        color: #1e3a8a;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #1e3a8a;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #1e3a8a;
+            outline: none;
+        }
+
+    .custom-file-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+        .custom-file-input:focus {
+            border-color: #1e3a8a;
+            outline: none;
+        }
+
+    .btn-verify-upload.verified::after {
+        content: "Verified";
+        color: #28a745;
+        font-weight: bold;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+</style>
+
+@code {
+    private List<CourseDataViewModel> courses;
+    private string currentTeacherEmail;
+    private TeacherViewModel currentTeacher;
+    private bool showCreateCourseForm = false;
+    private CreateCourseViewModel newCourse = new CreateCourseViewModel();
+    private IBrowserFile selectedThumbnailFile;
+    private IBrowserFile selectedVideoFile;
+    private string ThumbnailUri;
+    private string VideoUri;
+    private const string PlaceholderImage = "/images/placeholder.jpg";
+    private bool isLoadingCourses = false;
+    private bool isVerified = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var currentUser = await UserService.GetCurrentUser();
+        currentTeacherEmail = currentUser.UserName;
+    }
+
+    private async Task ShowAllCourses()
+    {
+        if (isLoadingCourses) return;
+        isLoadingCourses = true;
+        showCreateCourseForm = false;
+        Console.WriteLine("Fetching all courses...");
+        courses = await CourseService.GetAllCoursesAsync();
+        Console.WriteLine($"Fetched {courses.Count} courses.");
+        isLoadingCourses = false;
+    }
+
+    private async Task ShowEnrolledCourses()
+    {
+        if (isLoadingCourses) return;
+        isLoadingCourses = true;
+        showCreateCourseForm = false;
+        Console.WriteLine("Fetching enrolled courses...");
+        currentTeacher = await TeacherService.GetTeacherGuidByEmailAsync(currentTeacherEmail);
+        Console.WriteLine("aaa " + currentTeacher.TeacherId);
+        courses = await CourseService.GetCoursesByTeacherId(currentTeacher.TeacherId);
+        Console.WriteLine($"Fetched {courses.Count} enrolled courses.");
+        isLoadingCourses = false;
+    }
+
+    private void NavigateToCourse(Guid courseId)
+    {
+        NavigationManager.NavigateTo($"/course/{courseId}");
+    }
+
+    private void OpenCreateCourseForm()
+    {
+        showCreateCourseForm = true;
+        courses = null;
+    }
+
+    private void CancelCreateCourse()
+    {
+        showCreateCourseForm = false;
+        newCourse = new CreateCourseViewModel();
+        isVerified = false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        currentTeacher = await TeacherService.GetTeacherGuidByEmailAsync(currentTeacherEmail);
+        newCourse.TeacherId = currentTeacher.TeacherId;
+        newCourse.StartDate = newCourse.StartDate.ToUniversalTime();
+        newCourse.EndDate = newCourse.EndDate.ToUniversalTime();
+        newCourse.Thumbnail = ThumbnailUri;
+        newCourse.VideoUrl = VideoUri;
+        var response = await CourseService.CreateCourseAsync(newCourse);
+
+        if (response.IsSuccess)
+        {
+            showCreateCourseForm = false;
+            newCourse = new CreateCourseViewModel();
+            await ShowAllCourses();
+        }
+        else
+        {
+            Console.WriteLine(response.Value);
+        }
+    }
+
+    private void HandleThumbnailSelected(InputFileChangeEventArgs e)
+    {
+        selectedThumbnailFile = e.File;
+    }
+
+    private void HandleVideoSelected(InputFileChangeEventArgs e)
+    {
+        selectedVideoFile = e.File;
+    }
+
+    private async Task VerifyUploads()
+    {
+        if (selectedThumbnailFile != null)
+        {
+            var thumbnailUploadResult = await BlobHttpClientService.UploadFiles(new List<IBrowserFile> { selectedThumbnailFile });
+            Console.WriteLine("Thumbnail upload verified: " + thumbnailUploadResult[0].Uri);
+            ThumbnailUri = thumbnailUploadResult[0].Uri;
+        }
+        else
+        {
+            Console.WriteLine("No thumbnail file selected to verify.");
+        }
+
+        if (selectedVideoFile != null)
+        {
+            var videoUploadResult = await BlobHttpClientService.UploadFiles(new List<IBrowserFile> { selectedVideoFile });
+            Console.WriteLine("Video upload verified: " + videoUploadResult[0].Uri);
+            VideoUri = videoUploadResult[0].Uri;
+        }
+        else
+        {
+            Console.WriteLine("No video file selected to verify.");
+        }
+
+        isVerified = true;
+    }
+}

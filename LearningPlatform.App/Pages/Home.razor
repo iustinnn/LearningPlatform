@@ -1,0 +1,203 @@
+﻿@page "/"
+
+<div class="main-content">
+    <div class="hero">
+        <h1>Pentru fiecare student, orice curs.</h1>
+        <p>Misiunea noastră este de a oferi o educație gratuită, pentru oricine, oriunde.</p>
+        <button class="cta-button" @onclick="LoginStudent">Start</button>
+    </div>
+    <div class="features">
+        <div class="feature">
+            <img src="https://studentspace.org.uk/assets/images/student-space_illustrations_studying.png" alt="Învăța">
+            <h2>Învăța</h2>
+            <p>Bucură-te de o experiență de învățare personalizată cu conținut cuprinzător.</p>
+        </div>
+        <div class="feature">
+            <img src="https://media.licdn.com/dms/image/D4D12AQF5Z4cQDC173A/article-cover_image-shrink_720_1280/0/1701334436069?e=1724889600&v=beta&t=5gMo3f1mmhBmmGrQQy8gblkpPGv2fj7bJH4PwUavRhk" alt="Exersează">
+            <h2>Exersează</h2>
+            <p>Exersează în propriul ritm cu exerciții interactive.</p>
+        </div>
+        <div class="feature">
+            <img src="https://cdn.create.vista.com/api/media/medium/439236528/stock-vector-happy-kid-studying-learning?token=" alt="Realizări">
+            <h2>Realizări</h2>
+            <p>Urmărește-ți progresul și atinge-ți obiectivele de învățare.</p>
+        </div>
+    </div>
+    <section class="section action-buttons-section">
+        <div class="action-buttons">
+            <button class="start-button" @onclick="LoginStudent">Login Student</button>
+            <button class="start-button" @onclick="LoginTeacher">Login Teacher</button>
+        </div>
+        <div class="action-buttons">
+            <button class="start-button" @onclick="RegisterStudent">Înregistrare Student</button>
+            <button class="start-button" @onclick="RegisterTeacher">Înregistrare Profesor</button>
+        </div>
+    </section>
+</div>
+<div class="footer">
+    <div class="footer-content">
+        <p>&copy; 2024</p>
+        <a href="#">Despre</a>
+        <a href="#">Contact</a>
+        <a href="#">Politica de confidențialitate</a>
+    </div>
+</div>
+<style>
+
+    body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background-color: #f4f8fb;
+        color: #333;
+    }
+
+    body, html {
+        height: 100%;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        background-color: #1e3a8a;
+        color: white;
+    }
+
+    .logo img {
+        height: 50px;
+    }
+
+    .nav a {
+        color: white;
+        margin-left: 30px;
+        text-decoration: none;
+        font-size: 18px;
+    }
+
+    .main-content {
+        flex: 1;
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .hero {
+        background-color: #e0f2ff;
+        padding: 60px;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+        .hero h1 {
+            font-size: 52px;
+            margin-bottom: 25px;
+            color: #1e3a8a;
+        }
+
+        .hero p {
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+
+    .features {
+        display: flex;
+        justify-content: space-around;
+        margin: 60px 0;
+    }
+
+    .feature {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 15px;
+        width: 28%;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        text-align: left;
+    }
+
+        .feature img {
+            width: 100%;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .feature h2 {
+            font-size: 60px;
+            margin-bottom: 15px;
+            color: #1e3a8a;
+        }
+
+        .feature p {
+            font-size: 25px;
+        }
+
+    .action-buttons-section {
+        background-color: #f0f4f8;
+        padding: 50px 0;
+        text-align: center;
+    }
+
+    .action-buttons {
+        margin-top: 25px;
+    }
+
+    .start-button, .cta-button {
+        padding: 20px 40px;
+        background-color: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 20px;
+        margin: 10px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+        .start-button:hover, .cta-button:hover {
+            background-color: #27468f;
+            transform: scale(1.05);
+        }
+
+    .footer {
+        background-color: #1e3a8a;
+        color: white;
+        padding: 30px;
+        text-align: center;
+        width: 100%;
+    }
+
+        .footer a {
+            color: white;
+            margin-left: 30px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+</style>
+
+@code {
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+    private void LoginStudent()
+    {
+        NavigationManager.NavigateTo("/login/student");
+    }
+
+    private void LoginTeacher()
+    {
+        NavigationManager.NavigateTo("/login/teacher");
+    }
+
+    private void RegisterStudent()
+    {
+        NavigationManager.NavigateTo("/register/student");
+    }
+
+    private void RegisterTeacher()
+    {
+        NavigationManager.NavigateTo("/register/teacher");
+    }
+}
